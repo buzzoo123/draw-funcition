@@ -2,6 +2,7 @@
 #include <vector>
 #include <complex>
 #include <numbers>
+#include <fftw3.h>
 
 using namespace std;
 
@@ -34,3 +35,4 @@ vector<vector<complex<double>>> transposeMatrix(const vector<vector<complex<doub
 
 // Utility function to print a matrix of complex numbers for debugging
 void printComplexMatrix(const vector<vector<complex<double>>>& matrix);
+void performIFFT(const vector<vector<complex<double>>>& fft_output, vector<vector<complex<double>>>& ifft_result);

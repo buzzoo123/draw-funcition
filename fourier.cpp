@@ -46,8 +46,6 @@ vector<vector<complex<double>>> DFT2DFFT(vector<vector<int>>& matrix) {
     return finalResult;
 }
 
-
-
 vector<vector<complex<double>>> transposeMatrix(const vector<vector<complex<double>>>& matrix) {
     size_t rows = matrix.size();
     size_t cols = matrix[0].size();
@@ -153,6 +151,45 @@ complex<double> getDftStep(vector<vector<int>>& matrix, size_t r, size_t c, size
     double N = static_cast<double>(matrix[0].size());
     double angle = -2.0 * numbers::pi * ((k * r) / M) + ((l * c) / N);
     return static_cast<double>(matrix[r][c]) * exp(imaginary_i * angle);
+}
+
+void performIFFT(const vector<vector<complex<double>>>& fft_output, vector<vector<complex<double>>>& ifft_result) {
+    int rows = fft_output.size();
+    int cols = fft_output[0].size();
+    int N = rows * cols;
+
+    // Allocate memory for FFTW input/output in 1D format
+    fftw_complex *in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
+    fftw_complex *out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
+
+    // Convert 2D vector to 1D fftw_complex array
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            int idx = r * cols + c;
+            in[idx][0] = fft_output[r][c].real();
+            in[idx][1] = fft_output[r][c].imag();
+        }
+    }
+
+    // Create FFTW plan for IFFT
+    fftw_plan ifft_plan = fftw_plan_dft_2d(rows, cols, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+    // Execute IFFT
+    fftw_execute(ifft_plan);
+
+    // Convert 1D fftw_complex array back to 2D vector and normalize
+    ifft_result.resize(rows, vector<complex<double>>(cols));
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            int idx = r * cols + c;
+            ifft_result[r][c] = complex<double>(out[idx][0] / N, out[idx][1] / N);  // Normalize
+        }
+    }
+
+    // Clean up
+    fftw_destroy_plan(ifft_plan);
+    fftw_free(in);
+    fftw_free(out);
 }
 
 void printComplexMatrix(const vector<vector<complex<double>>>& matrix) {

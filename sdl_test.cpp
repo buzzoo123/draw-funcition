@@ -3,8 +3,43 @@
 #include <iostream>
 #include <vector>
 #include "fourier.h"
+#include <cmath>
 
 using namespace std;
+
+void displayDominantFrequencies(const vector<vector<complex<double>>>& ifft_result, double threshold = 0.1) {
+    int rows = ifft_result.size();
+    int cols = ifft_result[0].size();
+    int M = rows;
+    int N = cols;
+
+    cout << "Dominant frequency components:\n";
+
+    for (int k = 0; k < rows; ++k) {
+        for (int l = 0; l < cols; ++l) {
+            // Extract real and imaginary parts
+            double realPart = ifft_result[k][l].real();
+            double imagPart = ifft_result[k][l].imag();
+
+            // Calculate amplitude
+            double amplitude = sqrt(realPart * realPart + imagPart * imagPart);
+
+            // Check if amplitude is above the threshold
+            if (amplitude > threshold) {
+                // Calculate frequency in each dimension
+                double frequencyX = 2.0 * M_PI * k / M;
+                double frequencyY = 2.0 * M_PI * l / N;
+
+                // Calculate phase
+                double phase = atan2(imagPart, realPart);
+
+                // Output the component as a sine and cosine term
+                cout << "Amplitude: " << amplitude
+                     << " | cos(" << frequencyX << " * x + " << frequencyY << " * y + " << phase << ")\n";
+            }
+        }
+    }
+}
 
 // Function to print a matrix for visualization
 void printMatrix(const vector<vector<int>>& matrix) {
@@ -99,69 +134,24 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // vector<vector<int>> thinnedPixels = createSkeleton(windowPixelColors);
-    // vector<vector<complex<double>>> dftImage = DFT2DFFT(thinnedPixels);
-    // printComplexMatrix(dftImage);
-    // cout << endl;
+    vector<vector<int>> thinnedPixels = createSkeleton(windowPixelColors);
+    vector<vector<complex<double>>> dftImage = DFT2DFFT(thinnedPixels);
+    printComplexMatrix(dftImage);
+    cout << endl;
 
-    // vector<int> input1 = {1, 1, 1, 1};
-    // cout << "FFT for constant signal [1, 1, 1, 1]:" << endl;
-    // vector<complex<double>> result1 = FFT(input1);
-    // for (const auto& c : result1) {
-    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
-    // }
-    // cout << endl << endl;
+    vector<vector<complex<double>>> ifft_result;
+    performIFFT(dftImage, ifft_result);
 
-    // // Test case 2: Delta function (impulse signal)
-    // vector<int> input2 = {1, 0, 0, 0};
-    // cout << "FFT for delta function [1, 0, 0, 0]:" << endl;
-    // vector<complex<double>> result2 = FFT(input2);
-    // for (const auto& c : result2) {
-    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
-    // }
-    // cout << endl << endl;
+    // Print IFFT result
+    for (const auto& row : ifft_result) {
+        for (const auto& val : row) {
+            cout << "(" << val.real() << ", " << val.imag() << "i) ";
+        }
+        cout << endl;
+    }
 
-    // Test case 3: Sinusoidal pattern
-    // vector<int> input3 = {1, -1, 1, -1};
-    // cout << "FFT for sinusoidal pattern [1, -1, 1, -1]:" << endl;
-    // vector<complex<double>> result3 = FFT(input3);
-    // for (const auto& c : result3) {
-    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
-    // }
-    // cout << endl << endl;
-
-    vector<vector<int>> matrix1 = {
-        {1, 1, 1, 1},
-        {1, 1, 1, 1},
-        {1, 1, 1, 1},
-        {1, 1, 1, 1}
-    };
-
-    cout << "FFT for Constant Matrix:\n";
-    printComplexMatrix(DFT2DFFT(matrix1));
-    cout << "\n";
-
-    vector<vector<int>> matrix2 = {
-        {1, 0, 0, 0},
-        {0, 0, 0, 0},
-        {0, 0, 0, 0},
-        {0, 0, 0, 0}
-    };
-
-    cout << "FFT for Delta Function:\n";
-    printComplexMatrix(DFT2DFFT(matrix2));
-    cout << "\n";
-
-    vector<vector<int>> matrix3 = {
-        {1, -1, 1, -1},
-        {-1, 1, -1, 1},
-        {1, -1, 1, -1},
-        {-1, 1, -1, 1}
-    };
-
-    cout << "FFT for Checkerboard Pattern:\n";
-    printComplexMatrix(DFT2DFFT(matrix3));
-    cout << "\n";
+    cout << "\nExtracted Function Representation:\n";
+    displayDominantFrequencies(ifft_result, 0.1);
 
     SDL_FreeSurface(surface);
     SDL_DestroyRenderer(renderer);

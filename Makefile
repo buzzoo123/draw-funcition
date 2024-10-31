@@ -2,8 +2,9 @@
 CXX = g++
 CXXFLAGS = -Wall -std=c++20
 
-# SDL library flags (modify these paths if SDL is installed elsewhere)
+# SDL and FFTW library flags
 SDL_LIBS = -lSDL2
+FFTW_LIBS = -lfftw3
 
 # Source files
 SRC = sdl_test.cpp thinning.cpp fourier.cpp
@@ -14,7 +15,7 @@ TARGET = sdl_test
 
 # Compile target
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJ) $(SDL_LIBS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJ) $(SDL_LIBS) $(FFTW_LIBS)
 
 # Compile individual source files into object files
 %.o: %.cpp
