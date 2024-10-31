@@ -1,8 +1,21 @@
 #include "SDL2/SDL.h"
+#include "thinning.h"
 #include <iostream>
 #include <vector>
+#include "fourier.h"
 
 using namespace std;
+
+// Function to print a matrix for visualization
+void printMatrix(const vector<vector<int>>& matrix) {
+    for (const auto& row : matrix) {
+        for (int pixel : row) {
+            cout << (pixel ? "1" : "0");
+        }
+        cout << "\n";
+    }
+    cout << "\n";
+}
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -86,16 +99,74 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    for (int y = 0; y < windowHeight; ++y) {
-        for (int x = 0; x < windowWidth; ++x) {
-            cout << windowPixelColors[y][x];
-        }
-        cout << "\n";
-    }
+    // vector<vector<int>> thinnedPixels = createSkeleton(windowPixelColors);
+    // vector<vector<complex<double>>> dftImage = DFT2DFFT(thinnedPixels);
+    // printComplexMatrix(dftImage);
+    // cout << endl;
+
+    // vector<int> input1 = {1, 1, 1, 1};
+    // cout << "FFT for constant signal [1, 1, 1, 1]:" << endl;
+    // vector<complex<double>> result1 = FFT(input1);
+    // for (const auto& c : result1) {
+    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
+    // }
+    // cout << endl << endl;
+
+    // // Test case 2: Delta function (impulse signal)
+    // vector<int> input2 = {1, 0, 0, 0};
+    // cout << "FFT for delta function [1, 0, 0, 0]:" << endl;
+    // vector<complex<double>> result2 = FFT(input2);
+    // for (const auto& c : result2) {
+    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
+    // }
+    // cout << endl << endl;
+
+    // Test case 3: Sinusoidal pattern
+    // vector<int> input3 = {1, -1, 1, -1};
+    // cout << "FFT for sinusoidal pattern [1, -1, 1, -1]:" << endl;
+    // vector<complex<double>> result3 = FFT(input3);
+    // for (const auto& c : result3) {
+    //     cout << "(" << c.real() << ", " << c.imag() << "i) ";
+    // }
+    // cout << endl << endl;
+
+    vector<vector<int>> matrix1 = {
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1}
+    };
+
+    cout << "FFT for Constant Matrix:\n";
+    printComplexMatrix(DFT2DFFT(matrix1));
+    cout << "\n";
+
+    vector<vector<int>> matrix2 = {
+        {1, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0}
+    };
+
+    cout << "FFT for Delta Function:\n";
+    printComplexMatrix(DFT2DFFT(matrix2));
+    cout << "\n";
+
+    vector<vector<int>> matrix3 = {
+        {1, -1, 1, -1},
+        {-1, 1, -1, 1},
+        {1, -1, 1, -1},
+        {-1, 1, -1, 1}
+    };
+
+    cout << "FFT for Checkerboard Pattern:\n";
+    printComplexMatrix(DFT2DFFT(matrix3));
+    cout << "\n";
 
     SDL_FreeSurface(surface);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
     return 0;
 }
